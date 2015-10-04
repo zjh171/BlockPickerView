@@ -3,7 +3,7 @@
 //  Angejia
 //
 //  Created by zhujinhui on 15/10/2.
-//  Copyright © 2015年 Plan B Inc. All rights reserved.
+//  Copyright © 2015年 http://kyson.cn All rights reserved.
 //
 
 
@@ -26,6 +26,7 @@
  *
          @[   @{@"静安":@[@"北京西路",@"曹家渡",@"江宁路",@"南京西路",@"玉佛寺"]},
          ];
+ * see more at http://kyson.cn/index.php/archives/16/
  */
 
 

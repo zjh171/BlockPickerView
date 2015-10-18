@@ -24,7 +24,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 1;
+    return 2;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -33,7 +33,8 @@
     if (nil == cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     }
-    cell.textLabel.text = @"show picker view";
+    NSArray *titles = @[@"Show(signal selection enable)",@"Show(multi selection enable)"];
+    cell.textLabel.text = titles[indexPath.row];
     return cell;
 }
 
@@ -45,19 +46,55 @@
                          @{@"卢湾":@[@"不限",@"淮海中路",@"鲁班路",@"五里桥",@"新天地",@"复兴公园"]},
                          @{@"普陀":@[@"不限",@"武宁",@"华东师大",@"李子园",@"真如",@"宜川路"]}
                          ];
-    KSBlockPickerView *pickerView = [[KSBlockPickerView alloc] initWithData:data];
+    KSBlockPickerView *pickerView = nil;
+    switch (indexPath.row) {
+        case 0:{
+            pickerView = [[KSBlockPickerView alloc] initWithData:data multiDistrictsSelectEnable:NO];
+
+        }
+            break;
+        case 1:{
+            pickerView = [[KSBlockPickerView alloc] initWithData:data multiDistrictsSelectEnable:YES];
+
+        }
+            
+        default:
+            break;
+    }
+    
     pickerView.delegate = self;
     [pickerView show];
 }
 
-
--(void)blockPickerView:(KSBlockPickerView *)pickerView leftRowSelected:(NSNumber *)leftRow rightRowsSelected:(NSArray *)rightRows{
-    NSMutableString *rightRowsString = [[NSMutableString alloc] init];
-    for (NSNumber *rowItem in rightRows) {
-        [rightRowsString appendFormat:@"%@,",rowItem];
+/**
+ *      @{      @0:@[@1,@2],
+                @1:@[@2,@3],
+ }
+ */
+-(void)blockPickerView:(KSBlockPickerView *) pickerView selectedRows:(NSDictionary *) rows{
+    
+    NSMutableString *allRowsString = [[NSMutableString alloc] init];
+    for (NSNumber *rowItem in rows.allKeys) {
+        NSMutableString *rowsString = [[NSMutableString alloc] init];
+        [rowsString appendFormat:@"%@: ",rowItem];
+        
+        NSArray *rightRows = rows[rowItem];
+        for (NSNumber *rightRowItem in rightRows) {
+            [rowsString appendFormat:@"%@,",rightRowItem];
+        }
+        
+        NSInteger index = [rows.allKeys indexOfObject:rowItem];
+        if (index != rows.allKeys.count - 1) {
+            [allRowsString appendFormat:@"%@\n",rowsString];
+        }else{
+            [allRowsString appendFormat:@"%@",rowsString];
+        }
+        
     }
-    NSString *message = [NSString stringWithFormat:@"you choose left tableview at row:%@,right tableview at row:%@",leftRow,rightRowsString];
-    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"show" message:message delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil, nil];
+    
+    NSString *resultString = [NSString stringWithFormat:@"you selected:\n %@",allRowsString];
+    
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"show" message:resultString delegate:nil cancelButtonTitle:@"ok" otherButtonTitles:nil, nil];
     [alertView show];
 }
 

@@ -8,7 +8,7 @@
 
 #import "KSBlockPickerView.h"
 
-#define WIDTH_LEFT_TABLEVIEW 100
+#define WIDTH_LEFT_TABLEVIEW 150
 #define HEIGHT_TABLEVIEW 200
 #define HEIGHT_TOOLBAR 44
 #define HEIGHT_TABLEVIEW_ROW 42
@@ -21,13 +21,12 @@
 #define TAG_CELL_ACCESSORYBUTTON    9090
 #define TAG_CELL_BADGEVIEW          9091
 
-#define ROW_RIGHTSELECTED @"ROW_RIGHTSELECTED"
+#define KEY_LEFT_SELECTED_ROW(leftRow)  ([NSString stringWithFormat:@"%li",(long)leftRow])
 
 #define WeakObj(o) autoreleasepool{} __weak typeof(o) o##Weak = o;
 #define StrongObj(o) autoreleasepool{} __strong typeof(o) o = o##Weak;
 
-static NSString *leftTableViewIdentifier = @"leftTableViewIdentifier";
-static NSString *rightTableViewIdentifier = @"rightTableViewIdentifier";
+#pragma mark - KSBlockPickerClearFilterButton
 
 @interface UIView (viewUtils)
 
@@ -132,6 +131,7 @@ static NSString *rightTableViewIdentifier = @"rightTableViewIdentifier";
 
 @end
 
+
 #pragma mark - KSBlockPickerClearFilterButton
 @interface KSBlockPickerClearFilterButton : UIButton
 
@@ -186,7 +186,6 @@ static NSString *rightTableViewIdentifier = @"rightTableViewIdentifier";
 +(instancetype) checkButtonWithFrame:(CGRect) frame{
     KSBlockPickerCheckButton *checkButton = [KSBlockPickerCheckButton buttonWithType:UIButtonTypeCustom];
     checkButton.frame = frame;
-    checkButton.layer.borderWidth = 1.f;
     checkButton.isSelected = NO;
     [checkButton addTarget:checkButton action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
     return checkButton;
@@ -201,12 +200,14 @@ static NSString *rightTableViewIdentifier = @"rightTableViewIdentifier";
 -(void)setIsSelected:(BOOL)isSelected{
     _isSelected = isSelected;
     if (_isSelected) {
-        UIImage *image = [UIImage imageNamed:@"icon_xuanzhongzhuangtai"];
-        self.layer.borderColor = [UIColor clearColor].CGColor;
-        [self setBackgroundImage:image forState:UIControlStateNormal];
+        UIImage *image = [UIImage imageNamed:@"btn_sx"];
+        [self setImage:image forState:UIControlStateNormal];
+        //        [self setBackgroundImage:image forState:UIControlStateNormal];
     }else{
-        self.layer.borderColor = [UIColor colorWithHex:0xcccccc alpha:1.f].CGColor;
-        [self setBackgroundImage:nil forState:UIControlStateNormal];
+        UIImage *image = [UIImage imageNamed:@"btn_pre_sx"];
+        //        [self setBackgroundImage:image forState:UIControlStateNormal];
+        [self setImage:image forState:UIControlStateNormal];
+        
     }
 }
 
@@ -286,7 +287,7 @@ typedef void (^ButtonClickBlock)();
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         
         self.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
-        KSBlockPickerCheckButton *accessoryButton = [KSBlockPickerCheckButton checkButtonWithFrame:CGRectMake(0, 0, 20, 20)];
+        KSBlockPickerCheckButton *accessoryButton = [KSBlockPickerCheckButton checkButtonWithFrame:CGRectMake(0, 0, HEIGHT_TABLEVIEW_ROW, HEIGHT_TABLEVIEW_ROW)];
         accessoryButton.tag = TAG_CELL_ACCESSORYBUTTON;
         [accessoryButton addTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
         self.accessoryView = accessoryButton;
@@ -317,21 +318,29 @@ typedef void (^ButtonClickBlock)();
 
 #pragma mark - PickerCache
 @interface PickerCache : NSObject{
-    @private
-    NSCache *_cache;
+@private
+    NSMutableDictionary *_cache;
 }
 
-@property (nonatomic, strong) NSNumber *leftHasDataTableViewCellRowIndex;
+@property (nonatomic, strong, readonly) NSArray *leftHasDataTableViewCellRowIndexs;
+
+@property (nonatomic, assign) BOOL leftTableViewEnableMultiSelect;
+
+@property (nonatomic, strong) NSArray *data;
 
 @end
 
 @implementation PickerCache
 
-- (instancetype)init
+#define BADGE_LEFT      @"@"
+#define BADGE_RIGHT     @"#"
+
+- (instancetype)initWithData:(NSArray *)data
 {
     self = [super init];
     if (self) {
-        _cache = [[NSCache alloc] init];
+        _cache = [[NSMutableDictionary alloc] init];
+        self.data = data;
     }
     return self;
 }
@@ -340,43 +349,90 @@ typedef void (^ButtonClickBlock)();
     [_cache removeAllObjects];
 }
 
+-(BOOL) hasData{
+    BOOL hasData = NO;
+    if ([_cache allKeys].count > 0 && [_cache allValues].count > 0) {
+        hasData = YES;
+    }
+    return hasData;
+}
+
+-(BOOL)allrightRowselectedAtLeftRowIndex:(NSInteger) leftRowIndex withCachedString:(NSString *) cache{
+    NSMutableString *allselectedString = [[NSMutableString alloc] init];
+    NSAssert(self.data.count > leftRowIndex, @"数组越界");
+    NSDictionary *dataAtleftRowInfoDictionary = self.data[leftRowIndex];
+    NSArray *rightRowData = [dataAtleftRowInfoDictionary allValues].firstObject;
+    for (NSInteger index = 1; index < rightRowData.count; ++index) {
+        [allselectedString appendFormat:@"@%li#",(long)index];
+    }
+    if (cache.length == allselectedString.length) {
+        return YES;
+    }
+    return NO;
+}
+
+
+
 -(void)cacheRightSelectedCell:(KSBlockPickerRightViewCell *)cell atRightIndexPathRow:(NSInteger) rightRow leftIndexPathRow:(NSInteger) leftRow{
     
-    if (leftRow != [self.leftHasDataTableViewCellRowIndex integerValue]) {
-        [self->_cache removeAllObjects];
-    }
+    NSString *cachedString = [self->_cache objectForKey:KEY_LEFT_SELECTED_ROW(leftRow)];
     
-    NSString *cachedString = [self->_cache objectForKey:ROW_RIGHTSELECTED];
+    //    NSLog(@"cachedString %@", cachedString);
     if (nil == cachedString) {
         cachedString = @"";
     }
-    NSMutableString *currentSelectedRowFormattedString = [NSMutableString stringWithFormat:@"%li#",(long)rightRow];
+    NSMutableString *currentSelectedRowFormattedString = [NSMutableString stringWithFormat:@"@%li#",(long)rightRow];
+    //    NSLog(@"currentSelectedRowFormattedString %@", currentSelectedRowFormattedString);
+    //
+    //    NSLog(@"%@",currentSelectedRowFormattedString);
     
-    if (cell.isSelected) {
+    if (cell.isSelected || nil == cell) {
         cachedString = [cachedString stringByAppendingString:currentSelectedRowFormattedString];
+        //如果全部选中，则添加第0个“不限”
+        if ((rightRow != 0) && [self allrightRowselectedAtLeftRowIndex:leftRow withCachedString:cachedString]) {
+            cachedString = [cachedString stringByAppendingString:@"@0#"];
+        }
+        
     }else{
-        if ([cachedString rangeOfString:currentSelectedRowFormattedString].length > 0) {
+        NSRange range = [cachedString rangeOfString:currentSelectedRowFormattedString];
+        if (rightRow != 0) {
+            cachedString = [cachedString stringByReplacingOccurrencesOfString:@"@0#" withString:@""];
+        }
+        
+        if (range.length > 0) {
             cachedString = [cachedString stringByReplacingOccurrencesOfString:currentSelectedRowFormattedString withString:@""];
         }
     }
-    [self->_cache setObject:cachedString forKey:ROW_RIGHTSELECTED];
-    if (![cachedString isEqualToString:@""]) {
-        _leftHasDataTableViewCellRowIndex = [NSNumber numberWithInteger:leftRow];
+    if ([cachedString isEqualToString:@""]) {
+        [self->_cache removeObjectForKey:KEY_LEFT_SELECTED_ROW(leftRow)];
     }else{
-        _leftHasDataTableViewCellRowIndex = nil;
+        [self->_cache removeObjectForKey:KEY_LEFT_SELECTED_ROW(leftRow)];
+        [self->_cache setObject:cachedString forKey:KEY_LEFT_SELECTED_ROW(leftRow)];
+    }
+    
+    //mutltiselect
+    if (!self.leftTableViewEnableMultiSelect) {
+        NSMutableDictionary *templeftSelectedRows = [[NSMutableDictionary alloc] init];
+        for (NSString *leftSelectedItem in [_cache allKeys]) {
+            if ([leftSelectedItem integerValue] == leftRow) {
+                templeftSelectedRows[leftSelectedItem] = [_cache objectForKey:leftSelectedItem] ;
+            }
+        }
+        self->_cache = templeftSelectedRows;
     }
 }
 
+
 -(NSArray *)rightTableViewCellSelectedAtLeftTableViewCellIndex:(NSInteger) leftRow{
     NSMutableArray *allSelectedRow = [[NSMutableArray alloc] init];
-    if (leftRow == [self.leftHasDataTableViewCellRowIndex integerValue]) {
-        NSString *cachedString2 = [self->_cache objectForKey:ROW_RIGHTSELECTED];
-        NSArray *rows = [cachedString2 componentsSeparatedByString:@"#"];
-        for (NSString *rowStringItem in rows) {
-            if (![rowStringItem isEqualToString:@""]) {
-                NSInteger row = [rowStringItem integerValue];
-                [allSelectedRow addObject:[NSNumber numberWithInteger:row]];
-            }
+    NSString *cachedString2 = [self->_cache objectForKey:KEY_LEFT_SELECTED_ROW(leftRow)];
+    NSArray *rows = [cachedString2 componentsSeparatedByString:@"#"];
+    for (NSString *rowStringItem in rows) {
+        if (![rowStringItem isEqualToString:@""]) {
+            NSString *rowStringItem2 = [rowStringItem stringByReplacingOccurrencesOfString:@"@" withString:@""];
+            
+            NSInteger row = [rowStringItem2 integerValue];
+            [allSelectedRow addObject:[NSNumber numberWithInteger:row]];
         }
     }
     return allSelectedRow;
@@ -384,14 +440,35 @@ typedef void (^ButtonClickBlock)();
 
 -(BOOL)rightTableViewCellIsSelected:(NSInteger)rightRow atLeftTableViewCellIndex:(NSInteger) leftRow{
     BOOL rightIsSelected = NO;
-    if ([self.leftHasDataTableViewCellRowIndex isKindOfClass:[NSNumber class]] && leftRow == [self.leftHasDataTableViewCellRowIndex integerValue]) {
+    if ([self.leftHasDataTableViewCellRowIndexs isKindOfClass:[NSArray class]] ) {
         for (NSNumber *rowItem  in [self rightTableViewCellSelectedAtLeftTableViewCellIndex:leftRow]) {
             if ([rowItem integerValue] == rightRow) {
                 rightIsSelected = YES;
+                break;
             }
         }
     }
     return rightIsSelected;
+}
+
+-(BOOL)leftTableViewCellHasData:(NSInteger) leftRow{
+    BOOL leftTableViewRowHasData = NO;
+    for (NSNumber *leftRowItem in self.leftHasDataTableViewCellRowIndexs) {
+        if (leftRow == [leftRowItem integerValue]) {
+            leftTableViewRowHasData = YES;
+            break;
+        }
+    }
+    return leftTableViewRowHasData;
+}
+
+-(NSArray *)leftHasDataTableViewCellRowIndexs{
+    NSArray *allCacheKeys = [self->_cache allKeys];
+    NSMutableArray *resultArray = [[NSMutableArray alloc] init];
+    for (NSString *leftSlectedRowItem in allCacheKeys) {
+        [resultArray addObject:[NSNumber numberWithInteger:[leftSlectedRowItem integerValue]]];
+    }
+    return resultArray;
 }
 
 @end
@@ -411,10 +488,12 @@ typedef void (^ButtonClickBlock)();
 
 @implementation KSBlockPickerView
 
--(instancetype)initWithData:(NSArray *)data{
+-(instancetype)initWithData:(NSArray *)data multiDistrictsSelectEnable:(BOOL)enable{
     if (self = [super initWithFrame:[UIScreen mainScreen].bounds]) {
         self.backgroundColor = [UIColor colorWithHex:0x666666 alpha:0.6f];
-        _cache = [[PickerCache alloc] init];
+        _cache = [[PickerCache alloc] initWithData:data];
+        self.multiDistrictsSelectEnable = enable;
+        
         self.data = data;
         
         _toolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.height - HEIGHT_TABLEVIEW - HEIGHT_TOOLBAR, self.width, HEIGHT_TOOLBAR)];
@@ -450,7 +529,7 @@ typedef void (^ButtonClickBlock)();
         [button addTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:button];
         
-        if (nil != self.data) {
+        if (nil != self.data && self.data.count > 0) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
             [_leftTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionTop];
         }
@@ -466,8 +545,13 @@ typedef void (^ButtonClickBlock)();
         }
             break;
         case TAG_CONFIRM:{
-            if (self.delegate && [self.delegate respondsToSelector:@selector(blockPickerView:leftRowSelected:rightRowsSelected:)]) {
-                [self.delegate blockPickerView:self leftRowSelected:_cache.leftHasDataTableViewCellRowIndex rightRowsSelected:[_cache rightTableViewCellSelectedAtLeftTableViewCellIndex:[_cache.leftHasDataTableViewCellRowIndex integerValue]]];
+            NSMutableDictionary *allRows = [[NSMutableDictionary alloc] init];
+            for (NSNumber *leftSelectRowItem in self->_cache.leftHasDataTableViewCellRowIndexs) {
+                NSArray *rightSelectedRows = [self->_cache rightTableViewCellSelectedAtLeftTableViewCellIndex:leftSelectRowItem.integerValue];
+                allRows[leftSelectRowItem] = rightSelectedRows;
+            }
+            if (self.delegate && [self.delegate respondsToSelector:@selector(blockPickerView:selectedRows:)]) {
+                [self.delegate blockPickerView:self selectedRows:allRows];
             }
         }
             break;
@@ -475,7 +559,6 @@ typedef void (^ButtonClickBlock)();
             [_cache clearCache];
             [_rightTableView reloadData];
             [_leftTableView reloadData];
-            _cache.leftHasDataTableViewCellRowIndex = nil;
             
             if (nil != self.data && self.data.count > 0) {
                 NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
@@ -514,18 +597,18 @@ typedef void (^ButtonClickBlock)();
     return 2;
 }
 
+static NSString *blockPickerLeftViewCellIdentifier = @"blockPickerLeftViewCellIdentifier";
+static NSString *blockPickerRightViewCellIdentifier = @"blockPickerRightViewCellIdentifier";
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     switch (tableView.tag) {
         case TAG_LEFT_TABLEVIEW:{
-            KSBlockPickerLeftViewCell *cell = [tableView dequeueReusableCellWithIdentifier:leftTableViewIdentifier];
+            KSBlockPickerLeftViewCell *cell = [tableView dequeueReusableCellWithIdentifier:blockPickerLeftViewCellIdentifier];
             if (cell == nil) {
-                cell = [[KSBlockPickerLeftViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:leftTableViewIdentifier];
+                cell = [[KSBlockPickerLeftViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:blockPickerLeftViewCellIdentifier];
             }
-            if ([_cache.leftHasDataTableViewCellRowIndex isKindOfClass:[NSNumber class]] && indexPath.row == [_cache.leftHasDataTableViewCellRowIndex integerValue]) {
-                cell.hasDataTableViewCellSelected = YES;
-            }else {
-                cell.hasDataTableViewCellSelected = NO;
-            }
+            cell.hasDataTableViewCellSelected = [self->_cache leftTableViewCellHasData:indexPath.row];
             
             NSDictionary *districts = self.data[indexPath.row];
             
@@ -534,42 +617,42 @@ typedef void (^ButtonClickBlock)();
         }
             break;
         case TAG_RIGHT_TABLEVIEW:{
-            KSBlockPickerRightViewCell *cell = [tableView dequeueReusableCellWithIdentifier:rightTableViewIdentifier];
+            KSBlockPickerRightViewCell *cell = [tableView dequeueReusableCellWithIdentifier:blockPickerRightViewCellIdentifier];
             if (cell == nil) {
-                cell = [[KSBlockPickerRightViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:rightTableViewIdentifier];
+                cell = [[KSBlockPickerRightViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:blockPickerRightViewCellIdentifier];
             }
             __block NSIndexPath *leftTableViewIndexPath = _leftTableView.indexPathForSelectedRow;
             NSDictionary *district = self.data[leftTableViewIndexPath.row];
             NSArray *blocks = [district allValues].firstObject;
             cell.textLabel.text = blocks[indexPath.row];
-
+            
             cell.isSelected = [_cache rightTableViewCellIsSelected:indexPath.row atLeftTableViewCellIndex:leftTableViewIndexPath.row];
-
+            
             @WeakObj(cell);
             @WeakObj(self);
             cell.buttonClickedBlock = ^(void){
                 @StrongObj(cell);
                 @StrongObj(self);
                 
-                if ((indexPath.row == 0) && ([cell.textLabel.text rangeOfString:@"不限"].length > 0)) {
+                if (0 == indexPath.row) {
                     for (NSInteger i = 0; i < blocks.count; ++i) {
                         [self->_cache cacheRightSelectedCell:cell atRightIndexPathRow:i leftIndexPathRow:leftTableViewIndexPath.row];
                     }
-                    [self.rightTableView reloadData];
                 }else{
                     [self->_cache cacheRightSelectedCell:cell atRightIndexPathRow:indexPath.row leftIndexPathRow:leftTableViewIndexPath.row];
                 }
+                [self.rightTableView reloadData];
                 
-                NSArray *rightSelectedRows = [self->_cache rightTableViewCellSelectedAtLeftTableViewCellIndex:leftTableViewIndexPath.row];
+                //                NSArray *rightSelectedRows = [self->_cache rightTableViewCellSelectedAtLeftTableViewCellIndex:leftTableViewIndexPath.row];
                 KSBlockPickerClearFilterButton *clearButton =  (KSBlockPickerClearFilterButton *) [self viewWithTag:TAG_CLEAR_FILTER];
-                if (rightSelectedRows.count > 0) {
+                if ([_cache hasData]) {
                     clearButton.clearEnable = YES;
                 }else{
                     clearButton.clearEnable = NO;
                 }
                 
                 [self.leftTableView reloadData];
-                [self.leftTableView selectRowAtIndexPath:leftTableViewIndexPath animated:NO scrollPosition:UITableViewScrollPositionTop];
+                [self.leftTableView selectRowAtIndexPath:leftTableViewIndexPath animated:NO scrollPosition:UITableViewScrollPositionNone];
             };
             return cell;
         }
@@ -597,6 +680,11 @@ typedef void (^ButtonClickBlock)();
     }
 }
 
+-(void)setMultiDistrictsSelectEnable:(BOOL)multiDistrictsSelectEnable{
+    _multiDistrictsSelectEnable = multiDistrictsSelectEnable;
+    _cache.leftTableViewEnableMultiSelect = _multiDistrictsSelectEnable;
+}
+
 -(void)reloadData{
     [_leftTableView reloadData];
     [_rightTableView reloadData];
@@ -605,6 +693,32 @@ typedef void (^ButtonClickBlock)();
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
         [_leftTableView selectRowAtIndexPath:indexPath animated:NO scrollPosition:UITableViewScrollPositionTop];
     }
+    
+    if ([_cache hasData]) {
+        KSBlockPickerClearFilterButton *clearButton =  (KSBlockPickerClearFilterButton *) [self viewWithTag:TAG_CLEAR_FILTER];
+        clearButton.clearEnable = YES;
+    }
+}
+
+
+-(void)setSelectedRows:(NSDictionary *)selectedRows{
+    _selectedRows = selectedRows;
+    
+    NSArray *leftSelectedRows = [_selectedRows allKeys];
+    for (NSNumber *leftSelectedItem in leftSelectedRows) {
+        NSArray *currentRightSelectedRows = selectedRows[leftSelectedItem];
+        //add 不限
+        NSDictionary *allBlocks = self.data[[leftSelectedItem integerValue]];
+        NSArray *allBlockNames = [allBlocks allValues].firstObject;
+        if (currentRightSelectedRows.count ==  (allBlockNames.count)) {
+            [self->_cache cacheRightSelectedCell:nil atRightIndexPathRow:0 leftIndexPathRow:[leftSelectedItem integerValue]];
+        }
+        
+        for (NSNumber *rightSelectedItem in currentRightSelectedRows) {
+            [self->_cache cacheRightSelectedCell:nil atRightIndexPathRow:[rightSelectedItem integerValue] leftIndexPathRow:[leftSelectedItem integerValue]];
+        }
+    }
+    [self reloadData];
 }
 
 -(void)show{
@@ -620,3 +734,5 @@ typedef void (^ButtonClickBlock)();
 }
 
 @end
+
+

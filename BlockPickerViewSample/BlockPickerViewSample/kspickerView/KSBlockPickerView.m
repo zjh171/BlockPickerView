@@ -387,10 +387,13 @@ typedef void (^ButtonClickBlock)();
     //    NSLog(@"%@",currentSelectedRowFormattedString);
     
     if (cell.isSelected || nil == cell) {
-        cachedString = [cachedString stringByAppendingString:currentSelectedRowFormattedString];
+        //如果存在了就不追加
+        if ([cachedString rangeOfString:currentSelectedRowFormattedString].length == 0) {
+            cachedString = [cachedString stringByAppendingString:currentSelectedRowFormattedString];
+        }
         //如果全部选中，则添加第0个“不限”
-        if ((rightRow != 0) && [self allrightRowselectedAtLeftRowIndex:leftRow withCachedString:cachedString]) {
-            cachedString = [cachedString stringByAppendingString:@"@0#"];
+        if ((rightRow != 0)&& [cachedString rangeOfString:@"@0#"].length ==0 && [self allrightRowselectedAtLeftRowIndex:leftRow withCachedString:cachedString]) {
+            
         }
         
     }else{

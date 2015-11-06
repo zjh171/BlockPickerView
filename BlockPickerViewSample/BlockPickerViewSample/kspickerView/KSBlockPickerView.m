@@ -703,11 +703,23 @@ static NSString *blockPickerRightViewCellIdentifier = @"blockPickerRightViewCell
     }
 }
 
+-(NSDictionary *)selectedRows{
+    NSMutableDictionary *selectedRows = [NSMutableDictionary dictionary];
+    NSArray *leftRows = [_cache leftHasDataTableViewCellRowIndexs];
+    for (NSNumber *leftRowItem in leftRows) {
+        NSArray *rightSelectedRows = [_cache rightTableViewCellSelectedAtLeftTableViewCellIndex:leftRowItem.integerValue];
+        //rightRows
+        NSMutableArray *rightRows = [NSMutableArray array];
+        for (NSNumber *rightSelectedRowItem in rightSelectedRows) {
+            [rightRows addObject:rightSelectedRowItem];
+        }
+        selectedRows[leftRowItem] = rightRows;
+    }
+    return selectedRows;
+}
 
 -(void)setSelectedRows:(NSDictionary *)selectedRows{
-    _selectedRows = selectedRows;
-    
-    NSArray *leftSelectedRows = [_selectedRows allKeys];
+    NSArray *leftSelectedRows = [selectedRows allKeys];
     for (NSNumber *leftSelectedItem in leftSelectedRows) {
         NSArray *currentRightSelectedRows = selectedRows[leftSelectedItem];
         //add 不限

@@ -719,6 +719,7 @@ static NSString *blockPickerRightViewCellIdentifier = @"blockPickerRightViewCell
 }
 
 -(void)setSelectedRows:(NSDictionary *)selectedRows{
+    [self->_cache clearCache];
     NSArray *leftSelectedRows = [selectedRows allKeys];
     for (NSNumber *leftSelectedItem in leftSelectedRows) {
         NSArray *currentRightSelectedRows = selectedRows[leftSelectedItem];

@@ -724,6 +724,8 @@ static NSString *blockPickerRightViewCellIdentifier = @"blockPickerRightViewCell
     for (NSNumber *leftSelectedItem in leftSelectedRows) {
         NSArray *currentRightSelectedRows = selectedRows[leftSelectedItem];
         //add 不限
+        NSAssert(self.data.count >= [leftSelectedItem integerValue], @"beyond ");
+        
         NSDictionary *allBlocks = self.data[[leftSelectedItem integerValue]];
         NSArray *allBlockNames = [allBlocks allValues].firstObject;
         if (currentRightSelectedRows.count ==  (allBlockNames.count)) {

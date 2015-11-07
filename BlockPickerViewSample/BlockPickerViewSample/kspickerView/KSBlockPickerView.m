@@ -733,6 +733,7 @@ static NSString *blockPickerRightViewCellIdentifier = @"blockPickerRightViewCell
         for (NSNumber *rightSelectedItem in currentRightSelectedRows) {
             [self->_cache cacheRightSelectedCell:nil atRightIndexPathRow:[rightSelectedItem integerValue] leftIndexPathRow:[leftSelectedItem integerValue]];
         }
+        
     }
     [self reloadData];
 }

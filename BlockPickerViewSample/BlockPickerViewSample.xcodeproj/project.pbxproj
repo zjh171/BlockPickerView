@@ -9,11 +9,13 @@
 /* Begin PBXBuildFile section */
 		DE4E7FCA1BC168D700BD2EDA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4E7FC91BC168D700BD2EDA /* main.m */; };
 		DE4E7FCD1BC168D700BD2EDA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4E7FCC1BC168D700BD2EDA /* AppDelegate.m */; };
-		DE4E7FD01BC168D700BD2EDA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4E7FCF1BC168D700BD2EDA /* ViewController.m */; };
-		DE4E7FD31BC168D700BD2EDA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE4E7FD11BC168D700BD2EDA /* Main.storyboard */; };
+		DE4E7FD01BC168D700BD2EDA /* HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4E7FCF1BC168D700BD2EDA /* HomeViewController.m */; };
 		DE4E7FD51BC168D700BD2EDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE4E7FD41BC168D700BD2EDA /* Assets.xcassets */; };
 		DE4E7FD81BC168D700BD2EDA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE4E7FD61BC168D700BD2EDA /* LaunchScreen.storyboard */; };
-		DE4E7FE51BC1694C00BD2EDA /* KSBlockPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4E7FE41BC1694C00BD2EDA /* KSBlockPickerView.m */; settings = {ASSET_TAGS = (); }; };
+		DE4E7FE51BC1694C00BD2EDA /* KSBlockPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = DE4E7FE41BC1694C00BD2EDA /* KSBlockPickerView.m */; };
+		DEAAA3021BEDA69600E78895 /* BlockPickerInputViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DEAAA3001BEDA69600E78895 /* BlockPickerInputViewController.m */; };
+		DEAAA3031BEDA69600E78895 /* BlockPickerInputViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DEAAA3011BEDA69600E78895 /* BlockPickerInputViewController.xib */; };
+		DEAAA3051BEDA84D00E78895 /* HomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DEAAA3041BEDA84D00E78895 /* HomeViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,14 +23,17 @@
 		DE4E7FC91BC168D700BD2EDA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE4E7FCB1BC168D700BD2EDA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		DE4E7FCC1BC168D700BD2EDA /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		DE4E7FCE1BC168D700BD2EDA /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		DE4E7FCF1BC168D700BD2EDA /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		DE4E7FD21BC168D700BD2EDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DE4E7FCE1BC168D700BD2EDA /* HomeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HomeViewController.h; sourceTree = "<group>"; };
+		DE4E7FCF1BC168D700BD2EDA /* HomeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HomeViewController.m; sourceTree = "<group>"; };
 		DE4E7FD41BC168D700BD2EDA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DE4E7FD71BC168D700BD2EDA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DE4E7FD91BC168D700BD2EDA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE4E7FE31BC1694C00BD2EDA /* KSBlockPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSBlockPickerView.h; sourceTree = "<group>"; };
 		DE4E7FE41BC1694C00BD2EDA /* KSBlockPickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSBlockPickerView.m; sourceTree = "<group>"; };
+		DEAAA2FF1BEDA69600E78895 /* BlockPickerInputViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockPickerInputViewController.h; sourceTree = "<group>"; };
+		DEAAA3001BEDA69600E78895 /* BlockPickerInputViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockPickerInputViewController.m; sourceTree = "<group>"; };
+		DEAAA3011BEDA69600E78895 /* BlockPickerInputViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BlockPickerInputViewController.xib; sourceTree = "<group>"; };
+		DEAAA3041BEDA84D00E78895 /* HomeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HomeViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,11 +67,14 @@
 			isa = PBXGroup;
 			children = (
 				DE4E7FE21BC1694C00BD2EDA /* kspickerView */,
+				DEAAA2FF1BEDA69600E78895 /* BlockPickerInputViewController.h */,
+				DEAAA3001BEDA69600E78895 /* BlockPickerInputViewController.m */,
+				DEAAA3011BEDA69600E78895 /* BlockPickerInputViewController.xib */,
 				DE4E7FCB1BC168D700BD2EDA /* AppDelegate.h */,
 				DE4E7FCC1BC168D700BD2EDA /* AppDelegate.m */,
-				DE4E7FCE1BC168D700BD2EDA /* ViewController.h */,
-				DE4E7FCF1BC168D700BD2EDA /* ViewController.m */,
-				DE4E7FD11BC168D700BD2EDA /* Main.storyboard */,
+				DE4E7FCE1BC168D700BD2EDA /* HomeViewController.h */,
+				DE4E7FCF1BC168D700BD2EDA /* HomeViewController.m */,
+				DEAAA3041BEDA84D00E78895 /* HomeViewController.xib */,
 				DE4E7FD41BC168D700BD2EDA /* Assets.xcassets */,
 				DE4E7FD61BC168D700BD2EDA /* LaunchScreen.storyboard */,
 				DE4E7FD91BC168D700BD2EDA /* Info.plist */,
@@ -151,7 +159,8 @@
 			files = (
 				DE4E7FD81BC168D700BD2EDA /* LaunchScreen.storyboard in Resources */,
 				DE4E7FD51BC168D700BD2EDA /* Assets.xcassets in Resources */,
-				DE4E7FD31BC168D700BD2EDA /* Main.storyboard in Resources */,
+				DEAAA3031BEDA69600E78895 /* BlockPickerInputViewController.xib in Resources */,
+				DEAAA3051BEDA84D00E78895 /* HomeViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,23 +172,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE4E7FE51BC1694C00BD2EDA /* KSBlockPickerView.m in Sources */,
-				DE4E7FD01BC168D700BD2EDA /* ViewController.m in Sources */,
+				DE4E7FD01BC168D700BD2EDA /* HomeViewController.m in Sources */,
 				DE4E7FCD1BC168D700BD2EDA /* AppDelegate.m in Sources */,
 				DE4E7FCA1BC168D700BD2EDA /* main.m in Sources */,
+				DEAAA3021BEDA69600E78895 /* BlockPickerInputViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		DE4E7FD11BC168D700BD2EDA /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				DE4E7FD21BC168D700BD2EDA /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		DE4E7FD61BC168D700BD2EDA /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -312,6 +314,7 @@
 				DE4E7FDE1BC168D700BD2EDA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
